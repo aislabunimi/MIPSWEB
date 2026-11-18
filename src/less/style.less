@@ -1130,3 +1130,87 @@ span.code {
   font-family: monospace;
   font-weight: normal;
 }
+
+// $t registers scrambled by the CHAOS mode in the last instruction
+#registers .row.chaos-changed .col {
+  color: var(--rgb-red) !important;
+  font-style: italic;
+  background-color: var(--rgba-red-20) !important;
+}
+
+.form.evaluator {
+  width: min(900px, 90vw);
+  max-height: 85vh;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  .evaluator-help {
+    color: var(--rgb-gray-3);
+    font-size: @font-size-small;
+    summary {
+      cursor: pointer;
+      color: var(--rgb-gray-2);
+    }
+    pre {
+      background-color: var(--rgb-gray-11);
+      border: 1px solid var(--rgb-gray-9);
+      border-radius: 4px;
+      padding: 6px 8px;
+      margin: 4px 0;
+    }
+  }
+  .evaluator-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    input[type="number"] {
+      width: 10ch;
+    }
+  }
+  .evaluator-status {
+    color: var(--rgb-gray-3);
+    &.error {
+      color: var(--rgb-red);
+    }
+  }
+  .evaluator-results {
+    overflow: auto;
+    max-height: 40vh;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: @font-size-small;
+      th,
+      td {
+        text-align: left;
+        padding: 3px 6px;
+        border-bottom: 1px solid var(--rgb-gray-9);
+        vertical-align: top;
+      }
+      td.score {
+        font-family: monospace;
+        white-space: nowrap;
+      }
+      td.problems {
+        max-width: 50ch;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      tr.good td.score {
+        color: var(--rgb-darkgreen);
+      }
+      tr.partial td.score {
+        color: var(--rgb-gray-2);
+      }
+      tr.bad td.score {
+        color: var(--rgb-red);
+      }
+    }
+  }
+  button:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+}

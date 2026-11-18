@@ -37,6 +37,9 @@ export class Assembler {
     textSegmentStart: Binary = new Binary(0x00400000);
     textSegmentEnd: Binary = new Binary(this.textSegmentStart.getValue());
     breakpointPCs: Set<number> = new Set();
+    /**If true, the editors and the selected file are ignored (exam evaluator):
+     * no breakpoints and the "current file" entry point is replaced by "main"*/
+    headless: boolean = false;
 
     addressEditorsPositions: Map<number, EditorPosition> = new Map<
         number,
@@ -83,9 +86,13 @@ export class Assembler {
         this.cpu.registers.get("$sp")!.binary = new Binary(0x7fffeffc);
 
         const opts = getOptions();
-        if (opts["entry-point"] === "main" && globals.has("main")) {
+        const entryPoint =
+            this.headless && opts["entry-point"] === "currFile"
+                ? "main"
+                : opts["entry-point"];
+        if (entryPoint === "main" && globals.has("main")) {
             this.cpu.pc.set(globals.get("main")!.getValue());
-        } else if (opts["entry-point"] === "currFile") {
+        } else if (entryPoint === "currFile") {
             const currFileId = getSelectedFileId();
             const fileAddrs: number[] = [];
             for (const [addr, pos] of this.addressEditorsPositions.entries()) {
@@ -132,7 +139,9 @@ export class Assembler {
         let prevDirective: Directive | null = null;
         let address: Binary = new Binary(this.textSegmentEnd.getValue());
 
-        const editorBreakPoints = getAceEditor(file)?.session?.getBreakpoints();
+        const editorBreakPoints = this.headless
+            ? undefined
+            : getAceEditor(file)?.session?.getBreakpoints();
         const lines = file.content.split("\n");
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i].trim();
@@ -145,7 +154,7 @@ export class Assembler {
                 fileId: file.id,
                 lineNumber: lineNumber,
             };
-            if (withLabels && editorBreakPoints![lineNumber - 1] != null) {
+            if (withLabels && editorBreakPoints?.[lineNumber - 1] != null) {
                 this.breakpointPCs.add(address.getValue());
             }
 

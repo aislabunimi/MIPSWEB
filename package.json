@@ -9,7 +9,8 @@
     "dev": "concurrently \"npm run watch:less\" \"npm run watch:ts\" \"node server.js\"",
     "build:less": "npx lessc src/less/style.less css/style.css",
     "copy:static": "rm -r build; mkdir build && cp -r -t build index.html css/ js/ projects/ && cp -r src/templates build/templates",
-    "build": "npm run build:less && npx tsc && npm run copy:static"
+    "build": "npm run build:less && npx tsc && npm run copy:static",
+    "evaluator": "npm run build:less && npx tsc && MIPSWEB_MODE=evaluator node server.js"
   },
   "repository": {
     "type": "git",

@@ -92,8 +92,19 @@ export async function updateUiAfterStep(updateButtons: boolean = false) {
     scrollSelectedInstructionIntoView();
 }
 
+/**Lightweight UI refresh while a program is running at instant speed*/
+export async function updateUiDuringRun() {
+    await render("registers", "/app/registers.ejs", undefined, false);
+    if (consoleShown)
+        await render("console", "/app/console.ejs", undefined, false);
+}
+
 export async function run() {
-    await vm.run();
+    const running = vm.run();
+    // show the pause button while the program runs (vm.running is set synchronously by vm.run)
+    if (vm.running)
+        await render("vm-buttons", "/app/vm-buttons.ejs", undefined, false);
+    await running;
     await updateUiAfterStep();
     await renderApp();
     scrollSelectedInstructionIntoView();

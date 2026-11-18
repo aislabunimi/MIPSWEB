@@ -1,0 +1,56 @@
+<form class="form evaluator" onsubmit="event.preventDefault()">
+  <div class="text">Exam evaluator</div>
+  <details class="evaluator-help">
+    <summary>How to prepare the folder</summary>
+    <p>Select a folder containing one subfolder per student, named <span class="code">NAMESURNAME</span>,
+      with the .asm files of the exam (e.g. <span class="code">main.asm</span> and <span class="code">function.asm</span>),
+      and a file with the use cases (e.g. <span class="code">tests.txt</span>):</p>
+<pre>exams/
+  tests.txt
+  ROSSIMARIO/main.asm
+  ROSSIMARIO/function.asm
+  BIANCHILUCIA/main.asm
+  ...</pre>
+    <p>Each use case has an <span class="code">[input]</span> section (one input per line, as typed in the console)
+      and an <span class="code">[output]</span> section (the expected output, verbatim); <span class="code">[case name]</span> is optional:</p>
+<pre>[case positive numbers]
+[input]
+5
+3
+[output]
+The product is 15</pre>
+    <p>Outputs are compared line by line ignoring trailing spaces and trailing empty lines.
+      The typed inputs are not part of the output.</p>
+  </details>
+  <div class="evaluator-row">
+    <input type="file" id="evaluator-folder-input" webkitdirectory directory multiple style="display:none"
+           onchange="evaluatorFolderChanged(this)">
+    <button type="button" class="button default" id="evaluator-choose" onclick="evaluatorChooseFolderOnClick()">
+      <div class="icon gray-4"><%-Icons.render('files')%></div>
+      <div class="label">Choose exams folder...</div>
+    </button>
+  </div>
+  <div class="evaluator-row">
+    <label for="evaluator-max-steps">Max steps per run</label>
+    <input type="number" id="evaluator-max-steps" min="1" step="1" value="<%=ctx.maxSteps%>">
+  </div>
+  <div class="evaluator-row">
+    <input type="checkbox" id="evaluator-ignore-whitespace">
+    <label for="evaluator-ignore-whitespace">Ignore all whitespace differences (spaces and empty lines)</label>
+  </div>
+  <div id="evaluator-status" class="evaluator-status">No folder selected.</div>
+  <div id="evaluator-results" class="evaluator-results"></div>
+  <div class="buttons">
+    <button type="button" class="button default" onclick="closeEvaluatorOnClick()">
+      <div class="label">Close</div>
+    </button>
+    <button type="button" class="button default" id="evaluator-download" disabled onclick="evaluatorDownloadOnClick()">
+      <div class="icon gray-4"><%-Icons.render('save')%></div>
+      <div class="label">Download Excel</div>
+    </button>
+    <button type="button" class="button default" id="evaluator-start" disabled onclick="evaluatorStartOnClick()">
+      <div class="icon gray-4"><%-Icons.render('run')%></div>
+      <div class="label">Evaluate</div>
+    </button>
+  </div>
+</form>

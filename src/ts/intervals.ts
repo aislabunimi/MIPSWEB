@@ -59,7 +59,8 @@ export function getMemoryIntervals() {
     intervals.push(extendInterval(currentInterval));
     intervals = mergeIntervals(intervals, getUserIntervals());
 
-    intervals.forEach((interval) => addCellTags(interval));
+    const tagsByAddress = getTagsByAddress();
+    intervals.forEach((interval) => addCellTags(interval, tagsByAddress));
     return intervals;
 }
 
@@ -132,45 +133,53 @@ function mergeIntervals(
     return res;
 }
 
-function addCellTags(interval: interval) {
-    for (const cell of interval.cells) {
-        vm.assembler.allLabels.forEach((address, label) => {
-            if (address) {
-                const addressValue = address.getValue();
-                if (
-                    cell.address === addressValue ||
-                    (addressValue > cell.address &&
-                        addressValue < cell.address + 4)
-                ) {
-                    cell.tags.push({ name: label + ":", type: "label" });
-                }
-            }
-        });
-        for (const register of vm.getRegisters()) {
-            if (HIDE_AT_POINTER && register.name === "$at") continue;
-            const addressValue = register.binary.getValue();
-            if (
-                cell.address === addressValue ||
-                (addressValue > cell.address && addressValue < cell.address + 4)
-            ) {
-                if (register.name === "pc") {
-                    cell.tags.push({ name: register.name, type: "pc" });
-                } else {
-                    if (register.number) {
-                        cell.tags.push({
-                            name: vm.cpu.registers.getRegisterFormat(
-                                register.number,
-                                getFromStorage("local", "settings").colsFormats[
-                                    "registers-name-format"
-                                ],
-                                vm.cpu.registers,
-                            ),
-                            type: "register",
-                        });
-                    }
-                }
-            }
+/**Returns the word-aligned address containing the given address*/
+function wordOf(address: number): number {
+    return address - (((address % 4) + 4) % 4);
+}
+
+/**Computes the tags (labels and registers pointing to them) of each word-aligned address*/
+function getTagsByAddress(): Map<number, { name: string; type: string }[]> {
+    const tags = new Map<number, { name: string; type: string }[]>();
+    const addTag = (address: number, tag: { name: string; type: string }) => {
+        const word = wordOf(address);
+        const list = tags.get(word);
+        if (list) list.push(tag);
+        else tags.set(word, [tag]);
+    };
+    // labels come before registers in each cell
+    vm.assembler.allLabels.forEach((address, label) => {
+        if (address) addTag(address.getValue(), { name: label + ":", type: "label" });
+    });
+    const nameFormat = getFromStorage("local", "settings").colsFormats[
+        "registers-name-format"
+    ];
+    for (const register of vm.getRegisters()) {
+        if (HIDE_AT_POINTER && register.name === "$at") continue;
+        const addressValue = register.binary.getValue();
+        if (register.name === "pc") {
+            addTag(addressValue, { name: register.name, type: "pc" });
+        } else if (register.number) {
+            addTag(addressValue, {
+                name: vm.cpu.registers.getRegisterFormat(
+                    register.number,
+                    nameFormat,
+                    vm.cpu.registers,
+                ),
+                type: "register",
+            });
         }
+    }
+    return tags;
+}
+
+function addCellTags(
+    interval: interval,
+    tagsByAddress: Map<number, { name: string; type: string }[]>,
+) {
+    for (const cell of interval.cells) {
+        const tags = tagsByAddress.get(cell.address);
+        if (tags) cell.tags.push(...tags.map((tag) => ({ ...tag })));
     }
 }
 

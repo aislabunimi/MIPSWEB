@@ -408,6 +408,23 @@ Save your current project before proceeding.`,
     }
 };
 
+(window as any).closeAllFilesOnClick = async function () {
+    hideFilePopover();
+    const files = getFiles();
+    if (files.length === 0) return;
+    if (
+        !confirm(
+            `Close all the ${files.length} open files? Unsaved sources will be lost: export the project first if you want to keep them.`,
+        )
+    )
+        return;
+    if (interfaceState === "execute") await stop();
+    for (const file of files) {
+        await deleteFile(file.id, false);
+    }
+    await renderApp("edit", "edit");
+};
+
 (window as any).renameFileOnClick = async function (stringFileId: string) {
     if (interfaceState === "execute") await stop();
     const fileId = parseInt(stringFileId);

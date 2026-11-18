@@ -56,7 +56,7 @@ export abstract class Instruction {
         cpu: CPU,
         params: { [key: string]: Binary },
         vm: VirtualMachine | undefined,
-    ): void;
+    ): void | Promise<void>;
 
     /**Returns an object with extra info about the instruction
      * should return null if the instruction is not implemented, causing it not to be shown in the help screen*/
@@ -308,11 +308,11 @@ export class Instructions {
                         new Binary(0b000000, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rd = registers[params.rd!.getValue()].binary;
                     const rt = registers[params.rt!.getValue()].binary;
@@ -341,11 +341,11 @@ export class Instructions {
                         new Binary(0b000010, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rd = registers[params.rd!.getValue()].binary;
                     const rt = registers[params.rt!.getValue()].binary;
@@ -375,11 +375,11 @@ export class Instructions {
                         new Binary(0b000011, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rd = registers[params.rd!.getValue()].binary;
                     const rt = registers[params.rt!.getValue()].binary;
@@ -408,11 +408,11 @@ export class Instructions {
                         new Binary(0b000100, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rd = registers[params.rd!.getValue()].binary;
                     const rt = registers[params.rt!.getValue()].binary;
@@ -441,11 +441,11 @@ export class Instructions {
                         new Binary(0b000110, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rd = registers[params.rd!.getValue()].binary;
                     const rt = registers[params.rt!.getValue()].binary;
@@ -475,11 +475,11 @@ export class Instructions {
                         new Binary(0b000111, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rd = registers[params.rd!.getValue()].binary;
                     const rt = registers[params.rt!.getValue()].binary;
@@ -508,11 +508,11 @@ export class Instructions {
                         new Binary(0b001000, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs =
                         registers[params.rs.getValue()].binary.getValue();
@@ -538,11 +538,11 @@ export class Instructions {
                         new Binary(0b001001, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rd = registers[params.rd!.getValue()].binary;
                     const rs = registers[params.rs!.getValue()].binary;
@@ -603,11 +603,11 @@ export class Instructions {
                         new Binary(0b001101, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = params.rs!;
                     const rt = params.rt!;
@@ -642,11 +642,11 @@ export class Instructions {
                         new Binary(0b010000, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const rd = cpu.getRegisters()[params.rd!.getValue()].binary;
                     rd.set(cpu.hi.getUnsignedValue(), false);
 
@@ -671,11 +671,11 @@ export class Instructions {
                         new Binary(0b010001, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const rs = cpu.getRegisters()[params.rs!.getValue()].binary;
                     cpu.hi.set(rs.getValue());
 
@@ -700,11 +700,11 @@ export class Instructions {
                         new Binary(0b010010, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rd = registers[params.rd!.getValue()].binary;
 
@@ -731,11 +731,11 @@ export class Instructions {
                         new Binary(0b010011, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const rs = cpu.getRegisters()[params.rs!.getValue()].binary;
                     cpu.lo.set(rs.getValue());
 
@@ -760,11 +760,11 @@ export class Instructions {
                         new Binary(0b011000, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs!.getValue()].binary;
                     const rt = registers[params.rt!.getValue()].binary;
@@ -799,11 +799,11 @@ export class Instructions {
                         new Binary(0b011001, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs.getValue()].binary;
                     const rt = registers[params.rt.getValue()].binary;
@@ -842,11 +842,11 @@ export class Instructions {
                         new Binary(0b011010, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs.getValue()].binary;
                     const rt = registers[params.rt.getValue()].binary;
@@ -862,7 +862,7 @@ export class Instructions {
                         );
                     }
 
-                    const quotient = (Math.floor(rsValue / rtValue) >> 0) << 0;
+                    const quotient = Math.trunc(rsValue / rtValue) | 0;
                     const remainder = (rsValue % rtValue >> 0) << 0;
 
                     cpu.lo.set(quotient);
@@ -889,11 +889,11 @@ export class Instructions {
                         new Binary(0b011011, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs.getValue()].binary;
                     const rt = registers[params.rt.getValue()].binary;
@@ -902,9 +902,17 @@ export class Instructions {
                     const rtValue = rt.getUnsignedValue();
 
                     if (rtValue === 0) {
-                        console.warn(
+                        // same behaviour as DIV: warn and set HI and LO to 0
+                        // (instead of NaN or a range error)
+                        vm.console.addLineWithPos(
                             "DIVU instruction: Division by zero. Result undefined.",
+                            vm.cpu.pc.getValue(),
+                            "warn",
                         );
+                        cpu.lo.set(0, false);
+                        cpu.hi.set(0, false);
+                        cpu.pc.set(cpu.pc.getValue() + 4);
+                        return;
                     }
 
                     const quotient = Math.floor(rsValue / rtValue);
@@ -934,11 +942,11 @@ export class Instructions {
                         new Binary(0b100000, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rd = registers[params.rd!.getValue()].binary;
                     const rs = registers[params.rs!.getValue()].binary;
@@ -979,11 +987,11 @@ export class Instructions {
                         new Binary(0b100001, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rd = registers[params.rd!.getValue()].binary;
                     const rs = registers[params.rs!.getValue()].binary;
@@ -1014,11 +1022,11 @@ export class Instructions {
                         new Binary(0b100010, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rd = registers[params.rd!.getValue()].binary;
                     const rs = registers[params.rs!.getValue()].binary;
@@ -1058,11 +1066,11 @@ export class Instructions {
                         new Binary(0b100011, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rsValue =
                         registers[params.rs.getValue()].binary.getSignedValue();
@@ -1095,11 +1103,11 @@ export class Instructions {
                         new Binary(0b100100, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rd = registers[params.rd.getValue()].binary;
                     const rs = registers[params.rs.getValue()].binary;
@@ -1130,11 +1138,11 @@ export class Instructions {
                         new Binary(0b100101, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rd = registers[params.rd.getValue()].binary;
                     const rs = registers[params.rs.getValue()].binary;
@@ -1165,11 +1173,11 @@ export class Instructions {
                         new Binary(0b100110, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rd = registers[params.rd.getValue()].binary;
                     const rs = registers[params.rs.getValue()].binary;
@@ -1200,11 +1208,11 @@ export class Instructions {
                         new Binary(0b100111, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rd = registers[params.rd.getValue()].binary;
                     const rs = registers[params.rs.getValue()].binary;
@@ -1235,11 +1243,11 @@ export class Instructions {
                         new Binary(0b101010, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rd = registers[params.rd.getValue()].binary;
                     const rs = registers[params.rs.getValue()].binary;
@@ -1272,11 +1280,11 @@ export class Instructions {
                         new Binary(0b101011, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rd = registers[params.rd.getValue()].binary;
                     const rs = registers[params.rs.getValue()].binary;
@@ -1309,11 +1317,11 @@ export class Instructions {
                         new Binary(0b110000, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs.getValue()].binary;
                     const rt = registers[params.rt.getValue()].binary;
@@ -1343,11 +1351,11 @@ export class Instructions {
                         new Binary(0b110001, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs.getValue()].binary;
                     const rt = registers[params.rt.getValue()].binary;
@@ -1378,11 +1386,11 @@ export class Instructions {
                     );
                     this.fixedRt = new Binary(0b01000, 5);
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs.getValue()].binary;
                     const imm = params.immediate!;
@@ -1413,16 +1421,16 @@ export class Instructions {
                     );
                     this.fixedRt = new Binary(0b01001, 5);
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs.getValue()].binary;
                     const imm = params.immediate!;
 
-                    if (rs.getUnsignedValue() >= imm.getUnsignedValue()) {
+                    if (rs.getUnsignedValue() >= imm.getSignedValue() >>> 0) {
                         vm.console.addLine(`Trap by ${this.symbol}`, "warn");
                     }
 
@@ -1447,11 +1455,11 @@ export class Instructions {
                         new Binary(0b110010, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs.getValue()].binary;
                     const rt = registers[params.rt.getValue()].binary;
@@ -1482,11 +1490,11 @@ export class Instructions {
                     );
                     this.fixedRt = new Binary(0b01010, 5);
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs.getValue()].binary;
                     const imm = params.immediate!;
@@ -1517,16 +1525,16 @@ export class Instructions {
                     );
                     this.fixedRt = new Binary(0b01011, 5);
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs.getValue()].binary;
                     const imm = params.immediate!;
 
-                    if (rs.getUnsignedValue() < imm.getUnsignedValue()) {
+                    if (rs.getUnsignedValue() < imm.getSignedValue() >>> 0) {
                         vm.console.addLine(`Trap by ${this.symbol}`, "warn");
                     }
 
@@ -1551,11 +1559,11 @@ export class Instructions {
                         new Binary(0b110011, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs.getValue()].binary;
                     const rt = registers[params.rt.getValue()].binary;
@@ -1585,11 +1593,11 @@ export class Instructions {
                         new Binary(0b110100, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs.getValue()].binary;
                     const rt = registers[params.rt.getValue()].binary;
@@ -1620,16 +1628,16 @@ export class Instructions {
                     );
                     this.fixedRt = new Binary(0b01100, 5);
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs.getValue()].binary;
                     const imm = params.immediate!;
 
-                    if (rs.getUnsignedValue() === imm.getUnsignedValue()) {
+                    if (rs.getUnsignedValue() === imm.getSignedValue() >>> 0) {
                         vm.console.addLine(`Trap by ${this.symbol}`, "warn");
                     }
 
@@ -1654,11 +1662,11 @@ export class Instructions {
                         new Binary(0b110110, 6),
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs.getValue()].binary;
                     const rt = registers[params.rt.getValue()].binary;
@@ -1689,16 +1697,16 @@ export class Instructions {
                     );
                     this.fixedRt = new Binary(0b01110, 5);
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs.getValue()].binary;
                     const imm = params.immediate!;
 
-                    if (rs.getUnsignedValue() !== imm.getUnsignedValue()) {
+                    if (rs.getUnsignedValue() !== imm.getSignedValue() >>> 0) {
                         vm.console.addLine(`Trap by ${this.symbol}`, "warn");
                     }
 
@@ -1723,11 +1731,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const target = params.target.getValue();
 
@@ -1754,11 +1762,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const target = params.target.getValue();
 
@@ -1788,11 +1796,11 @@ export class Instructions {
                     );
                     this.fixedRt = new Binary(0b10001, 5);
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const offset =
                         Utils.fromSigned(params.immediate!.getValue(), 16) << 2;
@@ -1819,11 +1827,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs!.getValue()].binary;
                     const rt = registers[params.rt!.getValue()].binary;
@@ -1855,11 +1863,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const offset =
                         Utils.fromSigned(params.immediate!.getValue(), 16) << 2;
 
@@ -1885,11 +1893,11 @@ export class Instructions {
                     );
                     this.fixedRt = new Binary(0b00001, 5);
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs!.getValue()].binary;
                     const offset =
@@ -1921,11 +1929,11 @@ export class Instructions {
                     );
                     this.fixedRt = new Binary(0b10001, 5);
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs!.getValue()].binary;
                     const offset =
@@ -1959,11 +1967,11 @@ export class Instructions {
                     );
                     this.fixedRt = new Binary(0b00000, 5);
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs!.getValue()].binary;
                     const offset =
@@ -1994,11 +2002,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs!.getValue()].binary;
                     const rt = registers[params.rt!.getValue()].binary;
@@ -2030,17 +2038,17 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs!.getValue()].binary;
                     const offset =
                         Utils.fromSigned(params.immediate!.getValue(), 16) << 2;
 
-                    if (rs.getValue() <= 0) {
+                    if (rs.getSignedValue() <= 0) {
                         cpu.pc.set(cpu.pc.getValue() + 4 + offset);
                     } else {
                         cpu.pc.set(cpu.pc.getValue() + 4);
@@ -2066,17 +2074,17 @@ export class Instructions {
                     );
                     this.fixedRt = new Binary(0, 5);
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs!.getValue()].binary;
                     const offset =
                         Utils.fromSigned(params.immediate!.getValue(), 16) << 2;
 
-                    if (rs.getValue() <= 0) {
+                    if (rs.getSignedValue() < 0) {
                         cpu.pc.set(cpu.pc.getValue() + 4 + offset);
                     } else {
                         cpu.pc.set(cpu.pc.getValue() + 4);
@@ -2102,18 +2110,18 @@ export class Instructions {
                     );
                     this.fixedRt = new Binary(0b10000, 5);
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rs = registers[params.rs!.getValue()].binary;
                     const offset =
                         Utils.fromSigned(params.immediate!.getValue(), 16) << 2;
                     registers[31].binary.set(cpu.pc.getValue() + 4);
 
-                    if (rs.getValue() <= 0) {
+                    if (rs.getSignedValue() < 0) {
                         cpu.pc.set(cpu.pc.getValue() + 4 + offset);
                     } else {
                         cpu.pc.set(cpu.pc.getValue() + 4);
@@ -2138,11 +2146,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt!.getValue()].binary;
                     const rs = registers[params.rs!.getValue()].binary;
@@ -2183,11 +2191,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt!.getValue()].binary;
                     const rs = registers[params.rs!.getValue()].binary;
@@ -2217,11 +2225,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt.getValue()].binary;
                     const rs = registers[params.rs.getValue()].binary;
@@ -2254,17 +2262,17 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt.getValue()].binary;
                     const rs = registers[params.rs.getValue()].binary;
                     const imm = params.immediate!;
 
-                    if (rs.getUnsignedValue() < imm.getUnsignedValue()) {
+                    if (rs.getUnsignedValue() < imm.getSignedValue() >>> 0) {
                         rt.set(1);
                     } else {
                         rt.set(0);
@@ -2291,11 +2299,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt.getValue()].binary;
                     const rs = registers[params.rs.getValue()].binary;
@@ -2326,11 +2334,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt.getValue()].binary;
                     const rs = registers[params.rs.getValue()].binary;
@@ -2361,11 +2369,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt.getValue()].binary;
                     const rs = registers[params.rs.getValue()].binary;
@@ -2396,11 +2404,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt!.getValue()].binary;
                     const immediate = params.immediate!.getValue();
@@ -2428,11 +2436,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     throw new Error(`${this.symbol} not implemented yet`);
                 }
                 getHelp(): null {
@@ -2451,11 +2459,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     throw new Error(`${this.symbol} not implemented yet`);
                 }
                 getHelp(): null {
@@ -2474,11 +2482,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     throw new Error(`${this.symbol} not implemented yet`);
                 }
                 getHelp(): null {
@@ -2497,11 +2505,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt!.getValue()].binary;
                     const rs = registers[params.rs!.getValue()].binary;
@@ -2532,11 +2540,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt!.getValue()].binary;
                     const rs = registers[params.rs!.getValue()].binary;
@@ -2567,11 +2575,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt!.getValue()].binary;
                     const rs = registers[params.rs!.getValue()].binary;
@@ -2608,11 +2616,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt!.getValue()].binary;
                     const rs = registers[params.rs!.getValue()].binary;
@@ -2646,11 +2654,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt!.getValue()].binary;
                     const rs = registers[params.rs!.getValue()].binary;
@@ -2681,11 +2689,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt!.getValue()].binary;
                     const rs = registers[params.rs!.getValue()].binary;
@@ -2716,11 +2724,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt!.getValue()].binary;
                     const rs = registers[params.rs!.getValue()].binary;
@@ -2757,11 +2765,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt!.getValue()].binary;
                     const rs = registers[params.rs!.getValue()].binary;
@@ -2792,11 +2800,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt!.getValue()].binary;
                     const rs = registers[params.rs!.getValue()].binary;
@@ -2829,11 +2837,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt!.getValue()].binary;
                     const rs = registers[params.rs!.getValue()].binary;
@@ -2870,11 +2878,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt!.getValue()].binary;
                     const rs = registers[params.rs!.getValue()].binary;
@@ -2904,11 +2912,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     const registers = cpu.getRegisters();
                     const rt = registers[params.rt!.getValue()].binary;
                     const rs = registers[params.rs!.getValue()].binary;
@@ -2945,11 +2953,11 @@ export class Instructions {
                         undefined,
                     );
                 }
-                async execute(
+                execute(
                     cpu: CPU,
                     params: { [key: string]: Binary },
                     vm: VirtualMachine,
-                ): Promise<void> {
+                ): void {
                     throw new Error(`${this.symbol} not implemented yet`);
                 }
                 getHelp(): null {

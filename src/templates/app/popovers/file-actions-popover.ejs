@@ -8,6 +8,10 @@
             <div class="icon gray-4"><%-Icons.render('edit')%></div>
             <div class="label">Rename...</div>
         </div>
+        <div class="button" onclick="closeAllFilesOnClick();">
+            <div class="icon gray-4"><%-Icons.render('closeAll')%></div>
+            <div class="label">Close all files</div>
+        </div>
         <div class="button" onclick="deleteFileOnClick('<%=ctx.file.id%>');">
             <div class="icon red"><%-Icons.render('bin')%></div>
             <div class="label red">Delete</div>

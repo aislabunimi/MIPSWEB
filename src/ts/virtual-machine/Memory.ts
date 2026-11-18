@@ -45,6 +45,18 @@ function getNumericAddress(
     return val;
 }
 
+/**Number of words in a memory page*/
+const PAGE_WORDS = 1024;
+const WORD_INDEX_MASK = PAGE_WORDS - 1;
+
+/**A page of memory. Words are stored as the numeric value (`Binary.getValue()`) of the
+ * word that was written, which is enough to rebuild an equivalent Binary when loading.*/
+type Page = {
+    values: Float64Array;
+    /**1 if the word has been written (only written words are shown in the memory panel)*/
+    used: Uint8Array;
+};
+
 export class Memory {
     constructor() {
         this.bigEndian = getOptions()["endianness"] === "big";
@@ -52,7 +64,10 @@ export class Memory {
 
     private bigEndian: boolean;
     private heapPointer = 0x10040000;
-    private memory: Map<number, Binary> = new Map<number, Binary>();
+    private pages: Map<number, Page> = new Map<number, Page>();
+    /**cache of the last accessed page, memory accesses are very local*/
+    private lastPageNumber = -1;
+    private lastPage: Page | undefined = undefined;
 
     isBigEndian(): boolean {
         return this.bigEndian;
@@ -62,6 +77,41 @@ export class Memory {
     }
     private halfBitPosition(byteOffset: number): number {
         return this.bigEndian ? (2 - byteOffset) * 8 : byteOffset * 8;
+    }
+
+    private getPage(address: number, create: boolean): Page | undefined {
+        const pageNumber = Math.floor(address / 4096);
+        if (pageNumber === this.lastPageNumber) return this.lastPage;
+        let page = this.pages.get(pageNumber);
+        if (!page) {
+            if (!create) return undefined;
+            page = {
+                values: new Float64Array(PAGE_WORDS),
+                used: new Uint8Array(PAGE_WORDS),
+            };
+            this.pages.set(pageNumber, page);
+        }
+        this.lastPageNumber = pageNumber;
+        this.lastPage = page;
+        return page;
+    }
+
+    /**Fast path: returns the value (as `Binary.getValue()` would) of the word at the given
+     * word-aligned and valid address, 0 if never written. No checks are done on the address.*/
+    readWordValue(address: number): number {
+        const page = this.getPage(address, false);
+        if (page === undefined) return 0;
+        return page.values[(address >>> 2) & WORD_INDEX_MASK];
+    }
+
+    /**Fast path: stores a word value at the given word-aligned and valid address.
+     * @param value the word value as `Binary.getValue()` would return it
+     * (in [-2^31, 2^31 - 1] for negative values and in [0, 2^32 - 1] otherwise).*/
+    writeWordValue(address: number, value: number) {
+        const page = this.getPage(address, true)!;
+        const index = (address >>> 2) & WORD_INDEX_MASK;
+        page.values[index] = value;
+        page.used[index] = 1;
     }
 
     /**Inits the heap pointer to 0x10040000 or after the static data end if it exceeds 0x10040000*/
@@ -82,21 +132,13 @@ export class Memory {
 
     storeWord(wordAddress: Binary, value: Binary) {
         let address = getNumericAddress(wordAddress, Alignment.Word);
-        this.memory.set(address, value);
+        this.writeWordValue(address, value.getValue());
     }
 
     loadWord(wordAddress: Binary, signed: boolean = false): Binary {
         const address = getNumericAddress(wordAddress, Alignment.Word);
-        const value = this.memory.get(address);
-        if (value !== undefined) {
-            return new Binary(
-                signed ? value.getValue() : value.getUnsignedValue(),
-                32,
-                signed,
-            );
-        } else {
-            return new Binary(0, 32, true);
-        }
+        const value = this.readWordValue(address);
+        return new Binary(signed ? value : value >>> 0, 32, signed);
     }
 
     storeByte(wordAddress: Binary, value: Binary) {
@@ -152,23 +194,46 @@ export class Memory {
         this.storeWord(new Binary(alignedAddress), word);
     }
 
+    /**Returns all the written words sorted by address*/
     get() {
-        const sortedKeys = Array.from(this.memory.keys()).sort((a, b) => a - b);
         const sortedMemory = new Map<number, Binary>();
-
-        for (const key of sortedKeys) {
-            if (key % 4 !== 0) throw new Error(`Memory error`);
-            sortedMemory.set(key, this.memory.get(key)!);
+        const pageNumbers = Array.from(this.pages.keys()).sort((a, b) => a - b);
+        for (const pageNumber of pageNumbers) {
+            const page = this.pages.get(pageNumber)!;
+            const base = pageNumber * 4096;
+            for (let i = 0; i < PAGE_WORDS; i++) {
+                if (page.used[i] === 1) {
+                    sortedMemory.set(base + i * 4, new Binary(page.values[i]));
+                }
+            }
         }
         return sortedMemory;
     }
 
-    reset() {
-        this.memory.clear();
+    /**Returns the highest written address, or -Infinity if the memory is empty*/
+    getMaxAddress(): number {
+        let max = -Infinity;
+        for (const [pageNumber, page] of this.pages) {
+            for (let i = PAGE_WORDS - 1; i >= 0; i--) {
+                if (page.used[i] === 1) {
+                    max = Math.max(max, pageNumber * 4096 + i * 4);
+                    break;
+                }
+            }
+        }
+        return max;
     }
 
-    getString(address: Binary): string {
+    reset() {
+        this.pages.clear();
+        this.lastPageNumber = -1;
+        this.lastPage = undefined;
+    }
+
+    getString(stringAddress: Binary): string {
         const bytes: number[] = [];
+        // copy the address: the given Binary is often a register (e.g. $a0) and must not change
+        const address = new Binary(stringAddress.getValue());
 
         let byte = this.loadByte(address);
         while (byte.getValue() !== 0) {

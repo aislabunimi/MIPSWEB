@@ -14,3 +14,11 @@
     <div class="icon gray-4">?</div>
   </button>
 </div>
+<%if (ctx.appConfig && ctx.appConfig.mode === "evaluator") {%>
+<div class="section">
+  <button class="button default evaluator-button" onclick="openEvaluatorOnClick()" title="Evaluate the exams of a folder of students">
+    <div class="icon gray-4"><%-Icons.render('microchip')%></div>
+    <div class="label">Evaluate exams</div>
+  </button>
+</div>
+<%}%>

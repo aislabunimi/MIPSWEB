@@ -327,7 +327,7 @@ export async function colFormatSelect(
         if (element.id === "registers-name-format") {
             // need to update the assembly format in the deassembled memory
             // since it's cached, the cache needs to be cleared (minor performance loss on play if it was mid execution)
-            vm.cpu.decodingCache.clear();
+            vm.cpu.clearDecodingCache();
             await render("memory", "/app/memory.ejs", undefined, false);
         }
         await render("registers", "/app/registers.ejs", undefined, false);

@@ -619,7 +619,7 @@ export class Syscalls {
                     vm.cpu.halt();
                     const address = cpu.registers.get("$a0")!;
                     const msg = vm.cpu.memory.getString(address.binary);
-                    const res = await showSyscallDialog("input_confirm", msg);
+                    const res = await syscallDialog(vm, "input_confirm", msg);
 
                     if (currentAsyncToken !== vm.getCurrentAsyncToken()) {
                         return;
@@ -652,7 +652,7 @@ export class Syscalls {
                     const address = cpu.registers.get("$a0")!;
                     const msg = vm.cpu.memory.getString(address.binary);
                     try {
-                        const res = await showSyscallDialog("input_int", msg);
+                        const res = await syscallDialog(vm, "input_int", msg);
 
                         if (currentAsyncToken !== vm.getCurrentAsyncToken()) {
                             return;
@@ -717,7 +717,7 @@ export class Syscalls {
                     vm.cpu.halt();
                     const address = cpu.registers.get("$a0")!;
                     const msg = vm.cpu.memory.getString(address.binary);
-                    const res = await showSyscallDialog("input_string", msg);
+                    const res = await syscallDialog(vm, "input_string", msg);
 
                     if (currentAsyncToken !== vm.getCurrentAsyncToken()) {
                         return;
@@ -751,7 +751,7 @@ export class Syscalls {
                     vm.cpu.halt();
                     const address = cpu.registers.get("$a0")!;
                     const msg = vm.cpu.memory.getString(address.binary);
-                    await showSyscallDialog("output", msg);
+                    await syscallDialog(vm, "output", msg);
 
                     if (currentAsyncToken !== vm.getCurrentAsyncToken()) {
                         return;
@@ -782,7 +782,7 @@ export class Syscalls {
                     const address = cpu.registers.get("$a0")!;
                     const msg = vm.cpu.memory.getString(address.binary);
                     const payload = cpu.registers.get("$a1")!.binary.getValue();
-                    await showSyscallDialog("output", msg, `${payload}`);
+                    await syscallDialog(vm, "output", msg, `${payload}`);
 
                     if (currentAsyncToken !== vm.getCurrentAsyncToken()) {
                         return;
@@ -844,7 +844,7 @@ export class Syscalls {
                     const msg = vm.cpu.memory.getString(address.binary);
                     const payloadAddr = cpu.registers.get("$a1")!.binary;
                     const payload = vm.cpu.memory.getString(payloadAddr);
-                    await showSyscallDialog("output", msg, payload);
+                    await syscallDialog(vm, "output", msg, payload);
 
                     if (currentAsyncToken !== vm.getCurrentAsyncToken()) {
                         return;
@@ -885,6 +885,24 @@ function storeString(
             new Binary(terminated[i], 8, false),
         );
     }
+}
+
+/**Shows a syscall dialog, in headless mode (exam evaluator) the input dialogs read
+ * the next input and the output dialogs print the message*/
+function syscallDialog(
+    vm: VirtualMachine,
+    variant: "input_confirm" | "input_int" | "input_string" | "output",
+    message: string,
+    payload?: string,
+): Promise<string> {
+    if (vm.console.headless) {
+        if (variant === "output") {
+            vm.console.printString(`${message}${payload ?? ""}\\n`);
+            return Promise.resolve("");
+        }
+        return vm.console.getInput();
+    }
+    return showSyscallDialog(variant, message, payload);
 }
 
 function showSyscallDialog(

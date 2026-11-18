@@ -45,37 +45,32 @@ export class Utils {
     }
 
     static toSigned(value: number, bits: number): number {
-        const min = -1 * Math.pow(2, bits - 1);
-        const max = Math.pow(2, bits - 1) - 1;
-
-        if (value < min || value > max) {
+        const half = POW2[bits - 1];
+        if (value < -half || value > half - 1) {
             throw new Error(
-                `Value ${value} is out of range for signed ${bits}-bit representation. Expected between ${min} and ${max}.`,
+                `Value ${value} is out of range for signed ${bits}-bit representation. Expected between ${-half} and ${half - 1}.`,
             );
         }
 
         if (value >= 0) {
             return value;
         } else {
-            return Math.pow(2, bits) + value;
+            return POW2[bits] + value;
         }
     }
 
     static fromSigned(value: number, bits: number): number {
-        if (value >= Math.pow(2, bits - 1)) {
-            return value - Math.pow(2, bits);
+        if (value >= POW2[bits - 1]) {
+            return value - POW2[bits];
         } else {
             return value;
         }
     }
 
     static toUnsigned(value: number, bits: number): number {
-        const min = 0;
-        const max = Math.pow(2, bits) - 1;
-
-        if (value < min || value > max) {
+        if (value < 0 || value > POW2[bits] - 1) {
             throw new Error(
-                `Value ${value} is out of range for unsigned ${bits}-bit representation. Expected between ${min} and ${max}.`,
+                `Value ${value} is out of range for unsigned ${bits}-bit representation. Expected between 0 and ${POW2[bits] - 1}.`,
             );
         }
 
@@ -83,8 +78,14 @@ export class Utils {
     }
 }
 
+/**Precomputed powers of two (POW2[n] === 2 ** n) for n in [0, 64]*/
+const POW2: number[] = Array.from({ length: 65 }, (_, i) => 2 ** i);
+
 export class Binary {
-    private binary: number = 0;
+    /**Unsigned representation of the value, always in [0, 2^length - 1].
+     * Exposed (instead of private) only so that the CPU fast path can read and write
+     * registers without method calls: outside of CPU.ts always use the methods.*/
+    raw: number = 0;
     length: number;
     signed: boolean;
 
@@ -99,28 +100,37 @@ export class Binary {
             signed = value < 0;
         }
         this.signed = signed;
-        if (signed) {
-            this.binary = Utils.toSigned(value, this.length);
+        if (
+            this.length === 32 &&
+            value === Math.floor(value) &&
+            (signed
+                ? value >= -2147483648 && value <= 2147483647
+                : value >= 0 && value <= 4294967295)
+        ) {
+            // fast path for the common case (in range 32 bit integer)
+            this.raw = value >>> 0;
+        } else if (signed) {
+            this.raw = Utils.toSigned(value, this.length);
         } else {
-            this.binary = Utils.toUnsigned(value, this.length);
+            this.raw = Utils.toUnsigned(value, this.length);
         }
     }
 
     getValue(): number {
         if (this.signed) {
-            return Utils.fromSigned(this.binary, this.length);
+            return Utils.fromSigned(this.raw, this.length);
         } else {
-            return this.binary;
+            return this.raw;
         }
     }
 
     getUnsignedValue(): number {
-        return this.binary;
+        return this.raw;
     }
 
     getSignedValue(): number {
         const shift = 32 - this.length;
-        return (this.binary << shift) >> shift;
+        return (this.raw << shift) >> shift;
     }
 
     /**@param from: number in [this.length-0]
@@ -128,35 +138,43 @@ export class Binary {
      * @returns Binary representing bits from-to */
     getBits(from: number, to: number, signed: boolean = false): Binary {
         const bits = from - to + 1;
-        const mask = ((BigInt(1) << BigInt(bits)) - BigInt(1)) << BigInt(to);
-        const extractedBits = (BigInt(this.binary) & mask) >> BigInt(to);
+        let extractedBits: number;
+        if (bits <= 0) {
+            extractedBits = 0;
+        } else if (to >= 32) {
+            extractedBits = 0;
+        } else if (bits >= 32) {
+            extractedBits = (this.raw / POW2[to]) >>> 0;
+        } else {
+            extractedBits =
+                ((this.raw >>> to) & (POW2[bits] - 1)) >>> 0;
+        }
         if (signed) {
             return new Binary(
-                Utils.fromSigned(Number(extractedBits), bits),
+                Utils.fromSigned(extractedBits, bits),
                 bits,
                 true,
             );
         } else {
-            return new Binary(Number(extractedBits), bits);
+            return new Binary(extractedBits, bits);
         }
     }
 
     setBits(bits: Binary, from: number, to: number) {
         const mask = ((1 << (from - to + 1)) - 1) << to;
-        this.binary =
-            ((this.binary & ~mask) | ((bits.binary << to) & mask)) >>> 0;
+        this.raw = ((this.raw & ~mask) | ((bits.raw << to) & mask)) >>> 0;
     }
 
     getHex(): string {
-        return Utils.toHex(this.binary, this.length);
+        return Utils.toHex(this.raw, this.length);
     }
 
     getBinary(split: number = 8): string {
-        return Utils.toBinary(this.binary, this.length, split);
+        return Utils.toBinary(this.raw, this.length, split);
     }
 
     getAscii(): string {
-        const asciiArray = Utils.toAscii(this.binary, this.length);
+        const asciiArray = Utils.toAscii(this.raw, this.length);
         return asciiArray.join(" ");
     }
 
@@ -166,6 +184,6 @@ export class Binary {
 
     equals(binary: Binary): boolean {
         if (this.length !== binary.length) return false;
-        return this.binary === binary.binary;
+        return this.raw === binary.raw;
     }
 }

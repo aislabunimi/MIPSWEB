@@ -18,10 +18,24 @@ type ConsoleLine = {
     memoryPos?: number;
 };
 
+/**Error thrown in headless mode when the program asks for more input than provided*/
+export const NO_MORE_INPUT_ERROR = "The program asked for more input than provided";
+
 export class Console {
     lines: ConsoleLine[] = [];
     state: "ready" | "waitingInput" = "ready";
     input: string = "";
+    /**Headless console (used by the exam evaluator): never touches the UI,
+     * the input is read from `inputs` and the printed output is collected in `output`*/
+    readonly headless: boolean;
+    private inputs: string[] = [];
+    /**Everything printed by the program (headless mode only)*/
+    output: string = "";
+
+    constructor(options: { headless?: boolean; inputs?: string[] } = {}) {
+        this.headless = options.headless ?? false;
+        this.inputs = [...(options.inputs ?? [])];
+    }
 
     addLine(text: string, type: LineSeverity, showConsole: boolean = true) {
         this.lines.push({
@@ -30,7 +44,7 @@ export class Console {
             waitingInput: false,
             isPrintString: false,
         });
-        if (showConsole) setConsoleShown(true);
+        if (showConsole && !this.headless) setConsoleShown(true);
     }
 
     /**Add an error line with a position to which it relates.
@@ -46,7 +60,8 @@ export class Console {
             editorPos = undefined;
         if (typeof pos === "number") {
             memoryPos = pos;
-            editorPos = vm.assembler.addressEditorsPositions.get(pos);
+            if (!this.headless)
+                editorPos = vm.assembler.addressEditorsPositions.get(pos);
         } else {
             editorPos = pos;
         }
@@ -58,11 +73,12 @@ export class Console {
             editorPos: editorPos,
             memoryPos: memoryPos,
         });
-        setConsoleShown(true);
+        if (!this.headless) setConsoleShown(true);
     }
 
     /**Used for the print_string syscall, if the last line was printed with a syscall, appends to it.*/
     printString(text: string) {
+        if (this.headless) this.output += text.split("\\n").join("\n");
         const parts = text.split("\\n");
         for (let i = 0; i < parts.length; i++) {
             let last = this.lines[this.lines.length - 1];
@@ -78,7 +94,7 @@ export class Console {
                 });
             }
         }
-        setConsoleShown(true);
+        if (!this.headless) setConsoleShown(true);
     }
 
     async clear() {
@@ -89,6 +105,11 @@ export class Console {
     }
 
     async getInput(): Promise<string> {
+        if (this.headless) {
+            const next = this.inputs.shift();
+            if (next === undefined) throw new Error(NO_MORE_INPUT_ERROR);
+            return next;
+        }
         if (this.lines.length === 0) {
             this.addLine("", "success", false);
         }

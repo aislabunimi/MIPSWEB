@@ -14,6 +14,9 @@ import "./execution-speed.js";
 import "./shortcuts.js";
 import "./help.js";
 import "./unimi.js";
+import "./chaos.js";
+import "./evaluator.js";
+import { loadAppConfig } from "./app-config.js";
 import {
     getFromStorage,
     scrollSelectedIntoView,
@@ -55,6 +58,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             setIntoStorage("local", "settings", default_settings);
         }
         clearMemorySelectedFormats();
+        await loadAppConfig();
         initEditors();
         await renderApp();
     } catch (error) {

@@ -10,6 +10,7 @@ import {
     vm,
 } from "./virtual-machine.js";
 import { getFromStorage } from "./utils.js";
+import { appConfig } from "./app-config.js";
 import { getSelectedInstructionAddresses } from "./editors.js";
 import { getMemoryIntervals, setGranularTooltips } from "./intervals.js";
 import { possibleOptions } from "./settings.js";
@@ -29,6 +30,10 @@ declare const ejs: any;
 (window as any).ejs = ejs;
 
 export function getContext() {
+    // the memory intervals and the selected addresses are costly to compute for big programs:
+    // compute them only if a template uses them (at most once per context)
+    let memoryIntervals: ReturnType<typeof getMemoryIntervals> | undefined;
+    let selectedInstructionAddresses: number[] | undefined;
     return {
         projectName: getProjectName(),
         files: getFiles(),
@@ -39,12 +44,20 @@ export function getContext() {
         settings: getFromStorage("local", "settings"),
         /** possible options as defined in settings.ts*/
         possibleOptions: possibleOptions,
-        memoryIntervals: getMemoryIntervals(),
+        get memoryIntervals() {
+            if (!memoryIntervals) memoryIntervals = getMemoryIntervals();
+            return memoryIntervals;
+        },
         memoryShown: memoryShown,
         consoleShown: consoleShown,
         registersShown: registersShown,
-        selectedInstructionAddresses: getSelectedInstructionAddresses(),
+        get selectedInstructionAddresses() {
+            if (!selectedInstructionAddresses)
+                selectedInstructionAddresses = getSelectedInstructionAddresses();
+            return selectedInstructionAddresses;
+        },
         vm: vm,
+        appConfig: appConfig,
     };
 }
 
@@ -101,17 +114,40 @@ export async function render(
 }
 
 (window as any).renderTemplate = renderTemplate;
+
+type CompiledTemplate = (data: any) => Promise<string>;
+/**Templates are fetched and compiled only once*/
+const compiledTemplates = new Map<string, Promise<CompiledTemplate>>();
+
+function getCompiledTemplate(templatePath: string): Promise<CompiledTemplate> {
+    let compiled = compiledTemplates.get(templatePath);
+    if (!compiled) {
+        compiled = fetch(`templates/${templatePath}`)
+            .then((res) => {
+                if (!res.ok) {
+                    throw new Error(
+                        `No template found: "templates/${templatePath}"`,
+                    );
+                }
+                return res.text();
+            })
+            .then(
+                (template) =>
+                    ejs.compile(template, { async: true }) as CompiledTemplate,
+            );
+        // don't cache failures, allowing to retry
+        compiled.catch(() => compiledTemplates.delete(templatePath));
+        compiledTemplates.set(templatePath, compiled);
+    }
+    return compiled;
+}
+
 async function renderTemplate(templatePath: string, ctx: any = undefined) {
     addLoader(`renderTemplate: ${templatePath}`);
     if (!ctx) ctx = getContext();
-    const template = await fetch(`templates/${templatePath}`).then((res) => {
-        if (!res.ok) {
-            throw new Error(`No template found: "templates/${templatePath}"`);
-        }
-        return res.text();
-    });
+    const template = await getCompiledTemplate(templatePath);
     const data = { ctx, Icons, Colors };
-    const result = ejs.render(template, data, { async: true });
+    const result = await template(data);
     removeLoader(`renderTemplate: ${templatePath}`);
     return result;
 }

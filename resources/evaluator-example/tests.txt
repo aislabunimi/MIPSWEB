@@ -1,0 +1,30 @@
+Use cases of the exam: read two integers a and b, print "The product is <a*b>".
+Lines before the first section are comments.
+
+[case positive numbers]
+[input]
+5
+3
+[output]
+The product is 15
+
+[case negative first]
+[input]
+-4
+6
+[output]
+The product is -24
+
+[case zero]
+[input]
+0
+9
+[output]
+The product is 0
+
+[case negative second]
+[input]
+12
+-12
+[output]
+The product is -144
